@@ -105,7 +105,7 @@ sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
   : "instance eq" <> _typeName t <> " :: " <> genericConstraints <> genericEqInstance t <> " where"
   : "  eq = gEq"
   : "instance ord" <> _typeName t <> " :: " <> genericConstraints <> genericOrdInstance t <> " where"
-  : "  compare = gCompare"
+  : "  compare = gCompare\n"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
     genericInstance = ("Generic " <>) . typeInfoToText False
