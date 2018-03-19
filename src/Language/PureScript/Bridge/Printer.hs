@@ -61,7 +61,7 @@ moduleToText m = T.unlines $
   : map importLineToText allImports
   ++ [ ""
      , "import Prelude"
-     , "import Data.Generic (class Generic)"
+     , "import Data.Generic (class Generic, gCompare, gEq, gShow)"
      , ""
      ]
   ++ map sumTypeToText (psTypes m)
@@ -100,9 +100,18 @@ sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
   : "derive instance generic" <> _typeName t <> " :: " <> genericConstraints <> genericInstance t <> "\n"
+  : "instance show" <> _typeName t <> " :: " <> genericConstraints <> genericShowInstance t <> " where"
+  : "  show = gShow"
+  : "instance eq" <> _typeName t <> " :: " <> genericConstraints <> genericEqInstance t <> " where"
+  : "  eq = gEq"
+  : "instance ord" <> _typeName t <> " :: " <> genericConstraints <> genericOrdInstance t <> " where"
+  : "  compare = gCompare"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
     genericInstance = ("Generic " <>) . typeInfoToText False
+    genericShowInstance = ("Show " <>) . typeInfoToText False
+    genericEqInstance = ("Eq " <>) . typeInfoToText False
+    genericOrdInstance = ("Ord " <>) . typeInfoToText False
     newtypeInstance = ("Newtype " <>) . typeInfoToText False
     genericConstraints
         | stpLength == 0 = mempty
